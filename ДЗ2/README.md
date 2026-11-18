@@ -72,34 +72,38 @@ T* mostPowerful(const std::vector<std::shared_ptr<T>>& items);
 ### Пример
 
 Ввод:
-add scooter S-1 ModelX 2.5 8
-add bike B-1 City 4
-add scooter S-2 brokenX 1.0 9
-add helmet H-1 Pro
-add dock D-1 Hub 10.0
-list
-novice
-energy
-max scooter
-max dock
-quit
+
+    add scooter S-1 ModelX 2.5 8
+    add bike B-1 City 4
+    add scooter S-2 brokenX 1.0 9
+    add helmet H-1 Pro
+    add dock D-1 Hub 10.0
+    list
+    novice
+    energy
+    max scooter
+    max dock
+    quit
 
 Вывод:
-error: inspection rejected B-1 City
-D-1 Hub
-H-1 Pro
-S-1 ModelX
-S-1 ModelX
-12.5
-S-1 ModelX 2.5
-D-1 Hub 10.0
+
+    error: inspection rejected B-1 City
+    D-1 Hub
+    H-1 Pro
+    S-1 ModelX
+    S-1 ModelX
+    12.5
+    S-1 ModelX 2.5
+    D-1 Hub 10.0
 
 Пояснения:
+
 - add scooter S-2 brokenX ... отклонён техосмотром (в имени есть broken), в парк не попал.
 - list печатает принятые позиции, отсортированные по id.
 - novice выводит только прокатную технику с простотой >= 6 (в примере — S-1; велосипед B-1 с простотой 4 не попадает).
 - energy = 2.5 + 0 + 10.0 = 12.5.
 - max scooter выбирает среди самокатов (S-1), max dock — среди док-станций (D-1). Если устройств нужного типа нет, выводится error: no such devices.
+
 
 ## Использование ИИ
 
