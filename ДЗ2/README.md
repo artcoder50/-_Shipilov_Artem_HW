@@ -1,4 +1,6 @@
-# Запуск на Windows (PowerShell)
+# ФизКат — консольный учёт парка
+
+## Запуск на Windows (PowerShell)
 
 g++ -std=c++17 -Wall -Wextra -O2 main.cpp API.cpp Service.cpp Inspector.cpp Units.cpp -o fizkat.exe
 .\fizkat.exe
@@ -64,7 +66,9 @@ T* mostPowerful(const std::vector<std::shared_ptr<T>>& items);
 | show_focus | — | Показать текущую витрину или expired, если объект удалён. |
 | remove | <id> | Убрать позицию из парка. |
 | models | — | Напечатать все известные модели (ModelSpec) с их score и energy. |
-| max | <type> | Вывести самое энергоёмкое устройство указанного типа. Поддерживаемые type: scooter, ebike, dock. Печатает <id> <name> <energy>. Если устройств данного типа нет — error: no such devices. |
+| max scooter | — | Самое энергоёмкое электросамокатное устройство: <id> <name> <energy>. |
+| max ebike | — | Самый энергоёмкий электровелосипед: <id> <name> <energy>. |
+| max dock | — | Самая энергоёмкая док-станция: <id> <name> <energy>. |
 | quit | — | Завершить работу программы. |
 
 ### Пример
@@ -115,5 +119,4 @@ max dock
 - реализация функций readCommand и buildMethods в API
 - вопросы по использованию различных систем C++
 - помощь в обработке ошибок
-- реализация команды max и её документации
 - выравнивание
