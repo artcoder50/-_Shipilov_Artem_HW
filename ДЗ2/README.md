@@ -1,51 +1,69 @@
-Запуск на windows в Powershll:
-g++ -std=c++17 -Wall -Wextra -O2 main.cpp API.cpp Service.cpp Inspector.cpp Units.cpp -o fizkat.exe
-.\fizkat.exe
+# ============================================
+#  Сборка и запуск проекта "fizkat"
+# ============================================
 
+$ErrorActionPreference = "Stop"
 
-Схема наследования:
-Object (abstract)
-├── Inventory (abstract)
-│   ├── Helmet
-│   └── ElectricItem (abstract)
-│       └── Dock
-└── Vehicle (abstract)
-    ├── Bike
-    └── ElectricVehicle (abstract)  <--- ElectricVehicle
-        ├── ElectricScooter
-        └── Ebike
+$sources = @(
+    "main.cpp",
+    "API.cpp",
+    "Service.cpp",
+    "Inspector.cpp",
+    "Units.cpp"
+)
 
-EnergyConsumer (abstract)
-├── ElectricItem
-└── ElectricVehicle
+$exeName = "fizkat.exe"
+$std     = "c++17"
+$flags   = @("-Wall", "-Wextra", "-O2")
 
+Write-Host ""
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host "  Сборка проекта fizkat" -ForegroundColor Cyan
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host ""
 
+Write-Host "  Компилятор : g++"        -ForegroundColor Gray
+Write-Host "  Стандарт   : $std"        -ForegroundColor Gray
+Write-Host "  Флаги      : $($flags -join ' ')" -ForegroundColor Gray
+Write-Host "  Источники  : $($sources -join ', ')" -ForegroundColor Gray
+Write-Host "  Результат  : $exeName"   -ForegroundColor Gray
+Write-Host ""
 
+# --- Сборка ---
+$compileCmd = "g++ -std=$std $($flags -join ' ') $($sources -join ' ') -o $exeName"
 
-std::unique_ptr<Object> (Service.hpp, поле items_): парк единолично владеет каждой единицей техники. Вектор таких указателей обеспечивает полиморфное хранение и автоматическое удаление объектов при разрушении Service.
-std::shared_ptr<ModelSpec> (Service.hpp, поле models_): несколько единиц техники одной модели (например, два самоката ModelX) разделяют один общий объект ModelSpec. Это позволяет не дублировать данные и автоматически освобождать память, когда удаляется последняя единица этой модели.
-std::weak_ptr<ModelSpec> (Focus.hpp, поле ptr_): используется для «витрины» (focus / show_focus). weak_ptr не продлевает время жизни объекта. Если объект удален (remove), weak_ptr становится expired, и show_focus выводит expired. Это позволяет безопасно проверять наличие объекта без риска утечек памяти.
-Другая причина почему я использовал именно их: по ТЗ
+Write-Host "[1/2] Компиляция..." -ForegroundColor Yellow
+Write-Host "      > $compileCmd" -ForegroundColor DarkGray
+Write-Host ""
 
+$sw = [System.Diagnostics.Stopwatch]::StartNew()
+Invoke-Expression $compileCmd
+$sw.Stop()
 
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ""
+    Write-Host "  [ОШИБКА] Компиляция завершилась с кодом $LASTEXITCODE" -ForegroundColor Red
+    exit $LASTEXITCODE
+}
 
-Все исключения наследуются от std::runtime_error (Errors.hpp):
-InspectionError — бросается в Inspector::checkName (Inspector.cpp), если в имени объекта есть подстрока broken (без учёта регистра). Это штатная ситуация отказа техосмотра.
-ParseError — бросается в Inspector::validate* при некорректных аргументах (пустой ID, дубликат ID, отрицательная энергия, простота вне диапазона 1..10) и в API.cpp при ошибках разбора команд (неверное число токенов, неверный формат числа).
-NotFoundError — бросается в Service::findById (Service.cpp), если команда focus или remove ссылается на несуществующий ID.
-Все проверки в Inspector выполняются до добавления объекта в парк. При ошибке парк не меняется.
+Write-Host ""
+Write-Host "  [OK] Сборка завершена за $([math]::Round($sw.Elapsed.TotalSeconds, 2)) c" -ForegroundColor Green
+Write-Host ""
 
+# --- Запуск ---
+Write-Host "[2/2] Запуск $exeName..." -ForegroundColor Yellow
+Write-Host "--------------------------------------------" -ForegroundColor DarkGray
+Write-Host ""
 
+if (-not (Test-Path ".\$exeName")) {
+    Write-Host "  [ОШИБКА] Файл $exeName не найден" -ForegroundColor Red
+    exit 1
+}
 
-В MaxEnergy.hpp реализована шаблонная функция:
-template<typename T>
-T* mostPowerful(const std::vector<std::shared_ptr<T>>& items);
-Она находит объект с максимальным энергопотреблением среди техники определенного типа, используя dynamic_cast к EnergyConsumer.
-Шаблон используется для обобщения поиска максимума, чтобы не дублировать цикл для ElectricScooter, Ebike и Dock.
+& ".\$exeName"
+$exitCode = $LASTEXITCODE
 
-
-Использование ИИ:
-написание README
-реализация функций readCommand и buildMethods в API
-вопросы по использованию различных систем C++
-помощь в обработке ошибок
+Write-Host ""
+Write-Host "--------------------------------------------" -ForegroundColor DarkGray
+Write-Host "  Программа завершилась с кодом: $exitCode" -ForegroundColor $(if ($exitCode -eq 0) { "Green" } else { "Red" })
+Write-Host ""
