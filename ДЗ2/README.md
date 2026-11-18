@@ -7,31 +7,20 @@ g++ -std=c++17 -Wall -Wextra -O2 main.cpp API.cpp Service.cpp Inspector.cpp Unit
 
 ## Схема наследования
 
-Object (abstract)
-|
-+-- Inventory (abstract)
-|   |
-|   +-- Helmet
-|   |
-|   +-- ElectricItem (abstract)
-|       |
-|       +-- Dock
-|
-+-- Vehicle (abstract)
-    |
-    +-- Bike
-    |
-    +-- ElectricVehicle (abstract)
-        |
-        +-- ElectricScooter
-        |
-        +-- Ebike
+    Object (abstract)
+    ├── Inventory (abstract)
+    │   ├── Helmet
+    │   └── ElectricItem (abstract)
+    │       └── Dock
+    └── Vehicle (abstract)
+        ├── Bike
+        └── ElectricVehicle (abstract)
+            ├── ElectricScooter
+            └── Ebike
 
-EnergyConsumer (abstract)
-|
-+-- ElectricItem
-|
-+-- ElectricVehicle
+    EnergyConsumer (abstract)
+    ├── ElectricItem
+    └── ElectricVehicle
 
 ## Умные указатели
 
@@ -65,23 +54,24 @@ T* mostPowerful(const std::vector<std::shared_ptr<T>>& items);
 
 | Команда | Аргументы | Описание |
 |---|---|---|
-| `add scooter` | `<id> <name> <energy> <score>` | Добавить электросамокат. `energy` — суточное энергопотребление (double >= 0), `score` — простота для новичка (целое 1..10). |
-| `add bike` | `<id> <name> <score>` | Добавить обычный велосипед (энергию не потребляет, в сумме энергии даёт 0). |
-| `add ebike` | `<id> <name> <energy> <score>` | Добавить электровелосипед. |
-| `add helmet` | `<id> <name>` | Добавить шлем (вещь на балансе, без энергии и «новичка»). |
-| `add dock` | `<id> <name> <energy>` | Добавить док-станцию (вещь, потребляет энергию). |
-| `energy` | — | Напечатать суммарное суточное энергопотребление парка (один double, 1 знак после запятой). |
-| `novice` | — | Список прокатной техники для новичков (простота >= 6): по одной строке `<id> <name>`. |
-| `list` | — | Все позиции баланса, отсортированные по инвентарному номеру. |
-| `focus` | `<id>` | Установить «витрину» на позицию парка (weak_ptr на ModelSpec). |
-| `show_focus` | — | Показать текущую витрину или expired, если объект удалён. |
-| `remove` | `<id>` | Убрать позицию из парка. |
-| `models` | — | Напечатать все известные модели (ModelSpec) с их score и energy. |
-| `max` | `<type>` | Вывести самое энергоёмкое устройство указанного типа. Поддерживаемые `type`: `scooter`, `ebike`, `dock`. Печатает `<id> <name> <energy>`. Если устройств данного типа нет — `error: no such devices`. |
-| `quit` | — | Завершить работу программы. |
+| add scooter | `<id> <name> <energy> <score>` | Добавить электросамокат. energy — суточное энергопотребление (double >= 0), score — простота для новичка (целое 1..10). |
+| add bike | `<id> <name> <score>` | Добавить обычный велосипед (энергию не потребляет, в сумме энергии даёт 0). |
+| add ebike | `<id> <name> <energy> <score>` | Добавить электровелосипед. |
+| add helmet | `<id> <name>` | Добавить шлем (вещь на балансе, без энергии и «новичка»). |
+| add dock | `<id> <name> <energy>` | Добавить док-станцию (вещь, потребляет энергию). |
+| energy | — | Напечатать суммарное суточное энергопотребление парка (один double, 1 знак после запятой). |
+| novice | — | Список прокатной техники для новичков (простота >= 6): по одной строке `<id> <name>`. |
+| list | — | Все позиции баланса, отсортированные по инвентарному номеру. |
+| focus | `<id>` | Установить «витрину» на позицию парка (weak_ptr на ModelSpec). |
+| show_focus | — | Показать текущую витрину или expired, если объект удалён. |
+| remove | `<id>` | Убрать позицию из парка. |
+| models | — | Напечатать все известные модели (ModelSpec) с их score и energy. |
+| max | `<type>` | Вывести самое энергоёмкое устройство указанного типа (scooter, ebike, dock). Печатает `<id> <name> <energy>`. Если устройств нет — `error: no such devices`. |
+| quit | — | Завершить работу программы. |
 
 ### Пример
 
+Ввод:
 add scooter S-1 ModelX 2.5 8
 add bike B-1 City 4
 add scooter S-2 brokenX 1.0 9
@@ -95,7 +85,6 @@ max dock
 quit
 
 Вывод:
-
 error: inspection rejected B-1 City
 D-1 Hub
 H-1 Pro
@@ -106,21 +95,11 @@ S-1 ModelX 2.5
 D-1 Hub 10.0
 
 Пояснения:
-- `add scooter S-2 brokenX ...` отклонён техосмотром (в имени есть broken), в парк не попал.
-- `list` печатает принятые позиции, отсортированные по id.
-- `novice` выводит только прокатную технику с простотой >= 6 (в примере — S-1; велосипед B-1 с простотой 4 не попадает).
-- `energy` = 2.5 + 0 + 10.0 = 12.5.
-- `max scooter` выбирает среди самокатов (S-1), `max dock` — среди док-станций (D-1). Если устройств нужного типа нет, выводится `error: no such devices`.
-
-## Команда max
-
-Формат:
-
-max scooter
-max ebike
-max dock
-
-Команда находит среди парка устройство указанного типа с максимальным суточным энергопотреблением (dailyEnergy()). Для поиска используются готовые методы Service::mostPoverfulScooter(), Service::mostPoverfulEbike() и Service::mostPoverfulDock(). Если устройств данного типа в парке нет, выбрасывается NotFoundError("no such devices").
+- add scooter S-2 brokenX ... отклонён техосмотром (в имени есть broken), в парк не попал.
+- list печатает принятые позиции, отсортированные по id.
+- novice выводит только прокатную технику с простотой >= 6 (в примере — S-1; велосипед B-1 с простотой 4 не попадает).
+- energy = 2.5 + 0 + 10.0 = 12.5.
+- max scooter выбирает среди самокатов (S-1), max dock — среди док-станций (D-1). Если устройств нужного типа нет, выводится error: no such devices.
 
 ## Использование ИИ
 
