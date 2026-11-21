@@ -3,9 +3,6 @@
 #include <string>
 #include <iostream>
 
-// ============================================================
-// 1. ХАРАКТЕРИСТИКИ
-// ============================================================
 
 class ModelSpec {
     std::string name_;
@@ -35,31 +32,37 @@ public:
     virtual double dailyEnergy() = 0;
 };
 
-// ============================================================
-// 2. ДЕРЕВО НАСЛЕДОВАНИЯ
-// ============================================================
+class ObstractObject {
+public:
+    virtual ~ObstractObject() = default;
 
-class Object {
+    virtual std::string inventoryId() = 0;
+    virtual std::string name()        = 0;
+    virtual std::string describe()    = 0;
+};
+
+class Object : public ObstractObject {
 protected:
     std::string id_;
     std::string name_;
     std::string type_;
     std::shared_ptr<ModelSpec> model_;
+
 public:
     Object() = default;
-    virtual ~Object() = default;
+    ~Object() = default;
 
-    virtual std::string inventoryId() { return id_; }
-    virtual std::string name() { return name_; }
-    virtual std::string describe() { return name_ + " " + id_; }
+    std::string inventoryId() { return id_; }
+    std::string name()        { return name_; }
+    std::string describe()    { return id_ + " " + name_; }
 
     std::string type() { return type_; }
     std::shared_ptr<ModelSpec> model() { return model_; }
 
-    friend std::ostream& operator<<(std::ostream& os, Object& object) {
-        return os << object.describe();
+    friend std::ostream& operator<<(std::ostream& os, ObstractObject& o) {
+        return os << o.describe();
     }
-    friend bool operator<(Object& a, Object& b) {
+    friend bool operator<(ObstractObject& a, ObstractObject& b) {
         return a.inventoryId() < b.inventoryId();
     }
 };
